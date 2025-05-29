@@ -22,6 +22,60 @@ pdu工具的结构简单，仅由两部分组成，***pdu可执行文件+PGDATA.
 - 支持单表/整库/自定义文件恢复
 - 提供事务级/时间区间级数据恢复
 
+## 使用帮助
+```bash
+PDU.public=# h;
+
+PDU Data Rescue Tool | Command Reference
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+  **Basic Operations**
+  b;                                      │ Initialize database metadata
+  exit(1); OR \q;                            │ Exit the tool
+  ----------------------------------------.--------------------------------
+
+  **Database Context**
+  use <db>;                               │ Set current database (e.g. use logs;)
+  set <schema>;                           │ Set current schema (e.g. set recovery;)
+  ----------------------------------------.--------------------------------
+
+  **Metadata Display**
+  \l;                                     │ List all databases
+  \dn;                                    │ List all schema in current database
+  \dt;                                    │ List tables in current schema
+  \d+ <table>;                            │ View table structure details (e.g. \d+ users;)
+  \d <table>;                             │ View column types (e.g. \d users;)
+  ----------------------------------------.--------------------------------
+
+  **Data Export**
+  u|unload tab <table>;                   │ Export table to CSV (e.g. unload tab orders;)
+  u|unload sch <schema>;                  │ Export entire schema (e.g. unload sch public;)
+  u|unload ddl;                           │ Generate DDL statements of current schema
+  u|unload copy;                          │ Generate COPY statements for CSVs
+  ----------------------------------------.--------------------------------
+
+  **Data Recovery**
+  scan [t1|manual];                       │ Scan deleted/update records of tables/Init metadata from manual
+  restore del/upd [<TxID>|all];           │ Restore data by transaction ID/time range
+  add <filenode> <table> <columns>;       │ Manually add table info (e.g. add 12345 t1 varchar,...) [!] Datafile should be put into path 'restore/datafile'
+  restore db <db> <path>;                 │ Init customized database directory (e.g. restore db xmandb /home/...)
+  ----------------------------------------.--------------------------------
+
+  **Parameters**
+  p|param startwal/endwal <WAL>;          │ Set WAL scan range (default archive boundaries)
+  p|param starttime/endtime <TIME>;       │ Set time scan range (e.g. 2025-01-01 00:00:00)
+  p|param resmode tx|time;                │ Set recovery mode (Transaction/Time)
+  p|param restype delete|update;          │ Set recovery type (Delete/Update)
+  p|param exmode csv|sql;                 │ Set export format (default CSV)
+  p|param encoding utf8|gbk;              │ Set character encoding (default utf8)
+  reset <param>|all;                      │ Reset specified parameter|all parameter
+  show;                                   │ Display all parameters
+└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Syntax Rules
+◈ All commands must end with `;`
+
+```
+
 ## 快速部署
 ![EL-7/8/9](https://img.shields.io/badge/EL-7/8/9-red?style=flat&logo=redhat&logoColor=red) ![LINUX ARM64](https://img.shields.io/badge/LINUX-ARM-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624) ![LINUX X86](https://img.shields.io/badge/LINUX-X86-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624)
 ### 1、环境准备
