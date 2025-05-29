@@ -30,7 +30,7 @@ PDU Data Rescue Tool | Command Reference
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
   **Basic Operations**
   b;                                      │ Initialize database metadata
-  exit(1); OR \q;                            │ Exit the tool
+  exit; | \q;                             │ Exit the tool
   ----------------------------------------.--------------------------------
 
   **Database Context**
