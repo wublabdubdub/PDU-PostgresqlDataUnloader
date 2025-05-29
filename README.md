@@ -5,14 +5,16 @@
 ## 项目介绍
 数据拯救是专业DBA绕不开的一个话题，当数据库遇到正常途径无法开库、备份失效或干脆没有备份、常规方式已无法恢复等极端情况时，想要获取原数据库中的数据，唯一可行的手段就是直接对数据文件进行抽取。
 
-极端场景下的数据拯救也是各种数据库的生态中重要的一环。在此类场景中，Oracle可以用odu/dul直接对数据文件或者ASM磁盘进行数据提取；Postgresql也有生态中的pg_filedump工具可以在知道表结构的情况下对单表进行挖掘。
+极端场景下的数据拯救也是各种数据库的生态中重要的一环。在此类场景中，
+- Oracle可以用odu/dul直接对数据文件或者ASM磁盘进行数据提取；
+- Postgresql也有生态中的pg_filedump工具可以在知道表结构的情况下对单表进行挖掘。但是对于全库崩溃的情况，**如何有效地获取全库的数据字典，并有序便捷地实现数据导出**，是PG生态面临的一个**重要问题**。
 
 
-经过很长一段时间的开发与验证，我终于可以向各位介绍这款面向Postgresql系数据库的数据拯救工具——pdu。
+经过很长一段时间的开发与验证，我终于可以向各位介绍这款面向Postgresql系数据库的数据拯救工具—**PDU(Postgresql Data Unloader)**。
 
-首先让我们明确pdu的使用场景：在无法使用备份进行恢复，且数据文件的一致性被破坏，无法通过gs_ctl start起库的情况下，可使用pdu工具直接从数据文件中进行数据抽取，是用于极端场景下的数据恢复手段，为用户的数据安全提供最后一道屏障。
+首先让我们明确pdu的使用场景：在无法使用备份进行恢复，且数据文件的一致性被破坏，无法通过pg_ctl start起库的情况下，可使用pdu工具直接从数据文件中进行数据抽取，是用于极端场景下的数据恢复手段，为用户的数据安全提供最后一道屏障。
 
-pdu工具由两部分组成，pdu可执行文件+PGDATA.ini配置文件，整体的设计理念就是降低使用者的学习成本。
+pdu工具的结构简单，仅由两部分组成，***pdu可执行文件+PGDATA.ini配置文件***，整体的设计理念就是降低使用者的学习成本。
 ## 核心功能
 **PostgreSQL Data Unloader (PDU)** 是针对PostgreSQL 10-17版本的灾难恢复工具，主要功能：
 - 从归档WAL中恢复DELETE/UPDATE的原数据
@@ -22,7 +24,7 @@ pdu工具由两部分组成，pdu可执行文件+PGDATA.ini配置文件，整体
 
 ## 快速部署
 ![EL-7/8/9](https://img.shields.io/badge/EL-7/8/9-red?style=flat&logo=redhat&logoColor=red) ![LINUX ARM64](https://img.shields.io/badge/LINUX-ARM-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624) ![LINUX X86](https://img.shields.io/badge/LINUX-X86-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624)
-### 环境准备
+### 1、环境准备
 - 将安装包上传到需要恢复的数据库服务器上
 - 根据服务器架构选择对应的安装包
   
@@ -46,8 +48,59 @@ PGDATA=/home/postgres/data
 ARCHIVE_DEST=/home/postgres/wal_arch
 ```
 
-### 启动pdu
+### 2、启动pdu
+```bash
+[root@node1 xman]# ./pdu
+
+╔══════════════════════════════════════════════════════╗
+║  Copyright 2024-2025 ZhangChen. All rights reserved  ║
+║  PDU: PostgreSQL Data Unloader                       ║
+║  Version 2.5.0 (2025-05-22)                          ║
+╚══════════════════════════════════════════════════════╝
+
+  Current DB Supported Version:
+  ──────────────────────────
+  • PostgreSQL 10
+
+╔═══════════════════════════════════════════╗
+║           PROFESSIONAL EDITION            ║
+╠═══════════════════════════════════════════╣
+║ • Licensed to zc                          ║
+║ • Full functionality                      ║
+║ • No limitations                          ║
+╚═══════════════════════════════════════════╝
+
+  Contact Me:
+  ───────────────────
+  • WeChat: x1987LJ2020929
+  • Email:  1109315180@qq.com
+  • Tel:    15251853831
 
 
-### 初始化
+PDU.public=#
+```
 
+### 3、数据字典初始化
+使用命令<b;>就可以快速实现数据字典的获取，后续可以通过\l、\dt、\dn、\d+、\d等PG常用命令查看当前的数据库、表、模式、表结构等信息。
+```bash
+PDU.public=# b;
+
+Initializing...
+ -pg_database:</home/10pg/data/global/1262>
+
+Database:postgres
+      -pg_schema:</home/10pg/data/base/13214/2615>
+      -pg_class:</home/10pg/data/base/13214/1259> 69 Records
+      -pg_attribute:</home/10pg/data/base/13214/1249> 2579 Records
+      Schema:
+        ▌ public 0 tables
+
+Database:xman
+      -pg_schema:</home/10pg/tbsxman/PG_10_201707211/213244/2615>
+      -pg_class:</home/10pg/tbsxman/PG_10_201707211/213244/1259> 493 Records
+      -pg_attribute:</home/10pg/tbsxman/PG_10_201707211/213244/1249> 8697 Records
+      Schema:
+        ▌ public 0 tables
+        ▌ xman 212 tables
+
+```
