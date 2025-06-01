@@ -3,18 +3,24 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-10--17-336791?logo=postgresql) ![Version](https://img.shields.io/badge/Version-2.5-success?style=flat&color=2ea44f) ![License](https://img.shields.io/badge/License-Apache-green?logo=open-source-initiative)
 
 ## 项目介绍
-数据拯救是专业DBA绕不开的一个话题，当数据库遇到正常途径无法开库、备份失效或干脆没有备份、常规方式已无法恢复等极端情况时，想要获取原数据库中的数据，唯一可行的手段就是直接对数据文件进行抽取。
+假设一下Postgresql数据库中的这些场景
+1. 数据库一致性完全损坏无法打开
+2. 数据被误删除
+3. 数据被误更新
 
-极端场景下的数据拯救也是各种数据库的生态中重要的一环。在此类场景中，
+解决方案也许有很多，pg_filedump、pg_dirtyread、pg_resetlogs、pg_waldump，以上每一样工具都有自己的独特的用法，无疑**增加了使用者的学习成本**，并且无法对上述三个场景的有效性作出保证，同样**增加了数据恢复时的试错成本**。
+
+
+
+极端场景下的数据拯救是各种数据库的生态中重要的一环。在此类场景中，
 - Oracle可以用odu/dul直接对数据文件或者ASM磁盘进行数据提取；
 - Postgresql也有生态中的pg_filedump工具可以在知道表结构的情况下对单表进行挖掘。但是对于全库崩溃的情况，**如何有效地获取全库的数据字典，并有序便捷地实现数据导出**，是PG生态面临的一个**重要问题**。
 
 
-经过很长一段时间的开发与验证，我终于可以向各位介绍这款面向Postgresql系数据库的数据拯救工具—**PDU(Postgresql Data Unloader)**。
+本项目**PDU(Postgresql Data Unloader)**，是一款集数据文件挖掘、误删/误更新数据恢复等功能一体的工具，特点是学习成本低、恢复效率高。
 
-首先让我们明确pdu的使用场景：在无法使用备份进行恢复，且数据文件的一致性被破坏，无法通过pg_ctl start起库的情况下，可使用pdu工具直接从数据文件中进行数据抽取，是用于极端场景下的数据恢复手段，为用户的数据安全提供最后一道屏障。
 
-pdu工具的结构简单，仅由两部分组成，***pdu可执行文件+PGDATA.ini配置文件***，整体的设计理念就是降低使用者的学习成本。
+PDU工具的文件结构简单，仅由两部分组成，***pdu可执行文件+PGDATA.ini配置文件***，整体的设计理念就是降低使用者的学习成本。
 ## 核心功能
 **PostgreSQL Data Unloader (PDU)** 是针对PostgreSQL 10-17版本的灾难恢复工具，主要功能：
 - 从归档WAL中恢复DELETE/UPDATE的原数据
@@ -94,7 +100,7 @@ mkdir pdu
 cd pdu && unzip ../PDU2.0_for_Postgresql10-17社区版_20250521_x86.zip 
 ```
 
-#### 填写配置文件，写入数据目录和归档目录
+#### 填写配置文件，填入数据目录和归档目录
 ```bash
 vim pdu.ini
 
@@ -158,3 +164,35 @@ Database:xman
         ▌ xman 212 tables
 
 ```
+## PDU支持解析的数据类型
+| 一级分类 | 二级分类 | 具体类型     |
+|:--------:|:--------:|:------------|
+| 数值类型 | 整数类型 | smallserial |
+|          |          | smallint    |
+|          |          | int         |
+|          |          | tinyint     |
+|          |          | oid         |
+|          |          | xid         |
+|          |          | serial      |
+|          |          | bigint      |
+|          |          | bigserial   |
+|          | 浮点类型 | float4      |
+|          |          | float8      |
+|          |          | numeric     |
+|          | 日期类型 | time        |
+|          |          | timetz      |
+|          |          | date        |
+|          |          | timestamp   |
+|          |          | timestamptz |
+|          | 字符类型 | name        |
+|          |          | charn       |
+|          |          | char        |
+|          |          | varchar     |
+|          |          | bpchar      |
+|          |          | text        |
+|          |          | json        |
+|          |          | jsonb       |
+|          |          | xml         |
+|          |          | clob        |
+|          |          | blob        |
+|          |          | bytea       |
