@@ -83,7 +83,7 @@ Syntax Rules
 ```
 
 ## 快速部署
-![EL-7/8/9](https://img.shields.io/badge/EL-7/8/9-red?style=flat&logo=redhat&logoColor=red) ![LINUX ARM64](https://img.shields.io/badge/LINUX-ARM-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624) ![LINUX X86](https://img.shields.io/badge/LINUX-X86-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624)
+![EL-7/8/9](https://img.shields.io/badge/EL-7/8/9-#FF0000?style=flat&logo=#FF0000hat&logoColor=#FF0000) ![LINUX ARM64](https://img.shields.io/badge/LINUX-ARM-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624) ![LINUX X86](https://img.shields.io/badge/LINUX-X86-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624)
 ### 1、环境准备
 - 将安装包上传到需要恢复的数据库服务器上
 - 根据服务器架构选择对应的安装包
@@ -165,34 +165,24 @@ Database:xman
 
 ```
 ## PDU支持解析的数据类型
-| 一级分类 | 二级分类 | 具体类型     |
-|:--------:|:--------:|:------------|
-| 数值类型 | 整数类型 | smallserial |
-|          |          | smallint    |
-|          |          | int         |
-|          |          | tinyint     |
-|          |          | oid         |
-|          |          | xid         |
-|          |          | serial      |
-|          |          | bigint      |
-|          |          | bigserial   |
-|          | 浮点类型 | float4      |
-|          |          | float8      |
-|          |          | numeric     |
-|          | 日期类型 | time        |
-|          |          | timetz      |
-|          |          | date        |
-|          |          | timestamp   |
-|          |          | timestamptz |
-|          | 字符类型 | name        |
-|          |          | charn       |
-|          |          | char        |
-|          |          | varchar     |
-|          |          | bpchar      |
-|          |          | text        |
-|          |          | json        |
-|          |          | jsonb       |
-|          |          | xml         |
-|          |          | clob        |
-|          |          | blob        |
-|          |          | bytea       |
+
+分类 | 数据类型 | 是否支持 |
+---- | ---- | ---- |
+数值类型 | `smallint`, `integer`, `bigint`, `numeric`, `real`, `double precision` |  <span style="color:#2ECC71">全部支持</span>
+序列类型 | `smallserial`, `serial`, `bigserial` |  <span style="color:#2ECC71">全部支持</span>
+货币类型 | `money` |  <span style="color:#2ECC71">全部支持</span>
+字符类型 | `character(n)`, `varchar(n)`, `text` |  <span style="color:#2ECC71">全部支持</span>
+二进制类型 | `bytea` |  <span style="color:#2ECC71">全部支持</span>
+日期/时间 | `date`, `time`, `timestamp`, `interval` |  <span style="color:#2ECC71">全部支持</span>
+布尔类型 | `boolean` |  <span style="color:#2ECC71">全部支持</span>
+枚举类型 | 用户自定义枚举类型 | <span style="color:#FF0000">暂不支持</span>
+几何类型 | `point`, `line`, `lseg`, `box`, `path`, `polygon`, `circle` | <span style="color:#FF0000">暂不支持</span>
+网络地址 | `cidr`, `inet`, `macaddr` |  <span style="color:#27AE60">部分支持</span>
+位串类型 | `bit(n)`, `bit varying(n)` | <span style="color:#FF0000">暂不支持</span>
+文本搜索 | `tsvector`, `tsquery` | <span style="color:#FF0000">暂不支持</span>
+UUID | `uuid` |  <span style="color:#2ECC71">全部支持</span>
+XML | `xml` |  <span style="color:#2ECC71">全部支持</span>
+JSON | `json`, `jsonb` |  <span style="color:#2ECC71">全部支持</span>
+数组 | 所有基础类型的数组（如 `integer[]`） |  <span style="color:#2ECC71">全部支持</span>
+复合类型 | 用户自定义类型 | <span style="color:#FF0000">暂不支持</span>
+范围类型 | `int4range`, `int8range`, `numrange`, `tsrange`, `tstzrange`, `daterange` | <span style="color:#FF0000">暂不支持</span>
