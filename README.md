@@ -83,7 +83,7 @@ Syntax Rules
 ```
 
 ## 快速部署
-![EL-7/8/9](https://img.shields.io/badge/EL-7/8/9-#FF0000?style=flat&logo=#FF0000hat&logoColor=#FF0000) ![LINUX ARM64](https://img.shields.io/badge/LINUX-ARM-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624) ![LINUX X86](https://img.shields.io/badge/LINUX-X86-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624)
+![EL-7/8/9](https://img.shields.io/badge/EL-7/8/9-red?style=flat&logo=redhat&logoColor=red) ![LINUX ARM64](https://img.shields.io/badge/LINUX-ARM-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624) ![LINUX X86](https://img.shields.io/badge/LINUX-X86-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624)
 ### 1、环境准备
 - 将安装包上传到需要恢复的数据库服务器上
 - 根据服务器架构选择对应的安装包
