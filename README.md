@@ -1,4 +1,4 @@
-# PostgreSQL灾难恢复工具PDU使用指南
+# PostgreSQL灾难恢复工具PDU
 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-10--17-336791?logo=postgresql) ![Version](https://img.shields.io/badge/Version-2.5-success?style=flat&color=2ea44f) ![License](https://img.shields.io/badge/License-Apache-green?logo=open-source-initiative)
 
@@ -8,25 +8,48 @@
 2. 数据被误删除
 3. 数据被误更新
 
-解决方案也许有很多，pg_filedump、pg_dirtyread、pg_resetlogs、pg_waldump，以上每一样工具都有自己的独特的用法，无疑**增加了使用者的学习成本**，并且无法对上述三个场景的有效性作出保证，同样**增加了数据恢复时的试错成本**。
+解决方案也许有很多，pg_filedump、pg_dirtyread、pg_resetlogs、pg_waldump，但是以上每一样工具都有自己的独特的用法，无疑**增加了使用者的学习成本**，并且无法对上述三个场景的有效性作出保证，同样**增加了数据恢复时的试错成本**。
 
 
 
 极端场景下的数据拯救是各种数据库的生态中重要的一环。在此类场景中，
 - Oracle可以用odu/dul直接对数据文件或者ASM磁盘进行数据提取；
-- Postgresql也有生态中的pg_filedump工具可以在知道表结构的情况下对单表进行挖掘。但是对于全库崩溃的情况，**如何有效地获取全库的数据字典，并有序便捷地实现数据导出**，是PG生态面临的一个**重要问题**。
+- Postgresql也有生态中的pg_filedump工具可以在***知道表结构的情况下***对单表进行挖掘。但是对于全库崩溃的情况，**如何有效地获取全库的数据字典，并有序便捷地实现数据导出**，是PG生态面临的一个**重要问题**。
 
 
-本项目**PDU(Postgresql Data Unloader)**，是一款集数据文件挖掘、误删/误更新数据恢复等功能一体的工具，特点是学习成本低、恢复效率高。
+本项目**PDU(Postgresql Data Unloader)**，是一款集数据文件挖掘、误删/误更新数据恢复等功能一体的工具，特点是**学习成本低、恢复效率高**。
 
 
 PDU工具的文件结构简单，仅由两部分组成，***pdu可执行文件+PGDATA.ini配置文件***，整体的设计理念就是降低使用者的学习成本。
 ## 核心功能
 **PostgreSQL Data Unloader (PDU)** 是针对PostgreSQL 10-17版本的灾难恢复工具，主要功能：
-- 从归档WAL中恢复DELETE/UPDATE的原数据
-- 在数据库无法启动时直接从数据文件中提取数据
-- 支持单表/整库/自定义文件恢复
-- 提供事务级/时间区间级数据恢复
+1. 从归档WAL中恢复DELETE/UPDATE的原数据
+2. 在数据库无法启动时直接从数据文件中提取数据
+3. 支持单表/整库/自定义数据文件级别的恢复
+4. 提供事务级/时间区间级数据恢复
+
+## PDU支持解析的数据类型
+
+分类 | 数据类型 | 是否支持 |
+---- | ---- | ---- |
+数值类型 | `smallint`, `integer`, `bigint`, `numeric`, `real`, `double precision` |  :white_check_mark:
+序列类型 | `smallserial`, `serial`, `bigserial` |  :white_check_mark:
+货币类型 | `money` |  :white_check_mark:
+字符类型 | `character(n)`, `varchar(n)`, `text` |  :white_check_mark:
+二进制类型 | `bytea` |  :white_check_mark:
+日期/时间 | `date`, `time`, `timestamp`, `interval` |  :white_check_mark:
+布尔类型 | `boolean` |  :white_check_mark:
+UUID | `uuid` |  :white_check_mark:
+XML | `xml` |  :white_check_mark:
+JSON | `json`, `jsonb` |  :white_check_mark:
+数组 | 所有基础类型的数组（如 `integer[]`） |  :white_check_mark:
+网络地址 | `cidr`, `inet`, `macaddr` |  :white_check_mark:
+位串类型 | `bit(n)`, `bit varying(n)` | :x:
+枚举类型 | 用户自定义枚举类型 | :x:
+几何类型 | `point`, `line`, `lseg`, `box`, `path`, `polygon`, `circle` | :x:
+文本搜索 | `tsvector`, `tsquery` | :x:
+复合类型 | 用户自定义类型 | :x:
+范围类型 | `int4range`, `int8range`, `numrange`, `tsrange`, `tstzrange`, `daterange` | :x:
 
 ## 使用帮助
 ```bash
@@ -164,25 +187,11 @@ Database:xman
         ▌ xman 212 tables
 
 ```
-## PDU支持解析的数据类型
 
-分类 | 数据类型 | 是否支持 |
----- | ---- | ---- |
-数值类型 | `smallint`, `integer`, `bigint`, `numeric`, `real`, `double precision` |  :white_check_mark:
-序列类型 | `smallserial`, `serial`, `bigserial` |  :white_check_mark:
-货币类型 | `money` |  :white_check_mark:
-字符类型 | `character(n)`, `varchar(n)`, `text` |  :white_check_mark:
-二进制类型 | `bytea` |  :white_check_mark:
-日期/时间 | `date`, `time`, `timestamp`, `interval` |  :white_check_mark:
-布尔类型 | `boolean` |  :white_check_mark:
-枚举类型 | 用户自定义枚举类型 | :x:
-几何类型 | `point`, `line`, `lseg`, `box`, `path`, `polygon`, `circle` | :x:
-网络地址 | `cidr`, `inet`, `macaddr` |  :white_check_mark:
-位串类型 | `bit(n)`, `bit varying(n)` | :x:
-文本搜索 | `tsvector`, `tsquery` | :x:
-UUID | `uuid` |  :white_check_mark:
-XML | `xml` |  :white_check_mark:
-JSON | `json`, `jsonb` |  :white_check_mark:
-数组 | 所有基础类型的数组（如 `integer[]`） |  :white_check_mark:
-复合类型 | 用户自定义类型 | :x:
-范围类型 | `int4range`, `int8range`, `numrange`, `tsrange`, `tstzrange`, `daterange` | :x:
+# 联系我
+PDU软件在使用上有任何疑问或程序出现了bug/core dump，都欢迎联系我本人进行处理
+```bash
+  • WeChat: x1987LJ2020929
+  • Email:  1109315180@qq.com
+  • Tel:    15251853831
+```
