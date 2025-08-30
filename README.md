@@ -44,9 +44,9 @@ XML | `xml` |  :white_check_mark:
 JSON | `json`, `jsonb` |  :white_check_mark:
 数组 | 所有基础类型的数组（如 `integer[]`） |  :white_check_mark:
 网络地址 | `cidr`, `inet`, `macaddr` |  :white_check_mark:
-位串类型 | `bit(n)`, `bit varying(n)` | :x:
+位串类型 | `bit(n)`, `bit varying(n)` | :white_check_mark:
 枚举类型 | 用户自定义枚举类型 | :x:
-几何类型 | `point`, `line`, `lseg`, `box`, `path`, `polygon`, `circle` | :x:
+几何类型 | `point`, `line`, `lseg`, `box`, `path`, `polygon`, `circle` | :white_check_mark:
 文本搜索 | `tsvector`, `tsquery` | :x:
 复合类型 | 用户自定义类型 | :x:
 范围类型 | `int4range`, `int8range`, `numrange`, `tsrange`, `tstzrange`, `daterange` | :x:
