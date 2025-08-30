@@ -6,14 +6,14 @@
 假设一下Postgresql数据库中的这些场景
 1. 数据库一致性完全损坏无法打开
 2. 数据被误删除
-3. 数据被误更新
+3. 数据文件被误删除
 
 解决方案也许有很多，pg_filedump、pg_dirtyread、pg_resetlogs、pg_waldump，但是以上每一样工具都有自己的独特的用法，无疑**增加了使用者的学习成本**，并且无法对上述三个场景的有效性作出保证，同样**增加了数据恢复时的试错成本**。
 
 
 
 极端场景下的数据拯救是各种数据库的生态中重要的一环。在此类场景中，
-- Oracle可以用odu/dul直接对数据文件或者ASM磁盘进行数据提取；
+- Oracle可以用odu/dul直接对数据文件或者ASM磁盘进行数
 - Postgresql也有生态中的pg_filedump工具可以在***知道表结构的情况下***对单表进行挖掘。但是对于全库崩溃的情况，**如何有效地获取全库的数据字典，并有序便捷地实现数据导出**，是PG生态面临的一个**重要问题**。
 
 
@@ -26,8 +26,7 @@ PDU工具的文件结构简单，仅由两部分组成，***pdu可执行文件+P
 1. 从归档WAL中恢复DELETE/UPDATE的原数据
 2. 在数据库无法启动时直接从数据文件中提取数据
 3. 支持单表/整库/自定义数据文件级别的恢复
-4. 提供事务级/时间区间级数据恢复
-
+4. drop table/truncate table的碎片扫描数据恢复  
 ## PDU支持解析的数据类型
 
 分类 | 数据类型 | 是否支持 |
@@ -46,63 +45,68 @@ JSON | `json`, `jsonb` |  :white_check_mark:
 网络地址 | `cidr`, `inet`, `macaddr` |  :white_check_mark:
 位串类型 | `bit(n)`, `bit varying(n)` | :white_check_mark:
 枚举类型 | 用户自定义枚举类型 | :x:
-几何类型 | `point`, `line`, `lseg`, `box`, `path`, `polygon`, `circle` | :white_check_mark:
+PostGis几何类型 | `point`, `line`, `lseg`, `box`, `path`, `polygon`, `circle` | :white_check_mark:
 文本搜索 | `tsvector`, `tsquery` | :x:
 复合类型 | 用户自定义类型 | :x:
 范围类型 | `int4range`, `int8range`, `numrange`, `tsrange`, `tstzrange`, `daterange` | :x:
 
 ## 使用帮助
 ```bash
-PDU.public=# h;
-
-PDU Data Rescue Tool | Command Reference
+PDU数据拯救工具 | 命令帮助
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-  **Basic Operations**
-  b;                                      │ Initialize database metadata
-  exit; | \q;                             │ Exit the tool
+  **基础操作**
+  b;                                      │ 初始化数据库元信息
+  <exit;>|<\q;>                           │ 退出工具
   ----------------------------------------.--------------------------------
 
-  **Database Context**
-  use <db>;                               │ Set current database (e.g. use logs;)
-  set <schema>;                           │ Set current schema (e.g. set recovery;)
+  **数据库切换**
+  use <db>;                               │ 指定当前数据库（例: use logs;）
+  set <schema>;                           │ 指定当前模式（例: set recovery;）
   ----------------------------------------.--------------------------------
 
-  **Metadata Display**
-  \l;                                     │ List all databases
-  \dn;                                    │ List all schema in current database
-  \dt;                                    │ List tables in current schema
-  \d+ <table>;                            │ View table structure details (e.g. \d+ users;)
-  \d <table>;                             │ View column types (e.g. \d users;)
+  **元数据展示**
+  \l;                                     │ 列出所有数据库
+  \dn;                                    │ 列出当前数据库所有模式
+  \dt;                                    │ 列出当前模式下的所有表
+  \d+ <table>;                            │ 查看表结构详情（例: \d+ users;）
+  \d <table>;                             │ 查看表列类型（例: \d users;）
   ----------------------------------------.--------------------------------
 
-  **Data Export**
-  u|unload tab <table>;                   │ Export table to CSV (e.g. unload tab orders;)
-  u|unload sch <schema>;                  │ Export entire schema (e.g. unload sch public;)
-  u|unload ddl;                           │ Generate DDL statements of current schema
-  u|unload copy;                          │ Generate COPY statements for CSVs
+  **数据导出**
+  u|unload tab <table>;                   │ 导出表数据到CSV（例: unload tab orders;）
+  u|unload sch <schema>;                  │ 导出整个模式数据（例: unload sch public;）
+  u|unload ddl;                           │ 生成当前模式DDL语句文件
+  u|unload copy;                          │ 生成CSV的COPY语句脚本
   ----------------------------------------.--------------------------------
 
-  **Data Recovery**
-  scan [t1|manual];                       │ Scan deleted/update records of tables/Init metadata from manual
-  restore del/upd [<TxID>|all];           │ Restore data by transaction ID/time range
-  add <filenode> <table> <columns>;       │ Manually add table info (e.g. add 12345 t1 varchar,...) [!] Datafile should be put into path 'restore/datafile'
-  restore db <db> <path>;                 │ Init customized database directory (e.g. restore db xmandb /home/...)
+  **误操作数据恢复**
+  scan [t1|manual];                       │ 扫描误删表/从manual目录初始化元数据
+  restore del/upd [<TxID>|all];           │ 按事务号/时间区间恢复数据
+  add <filenode> <表名> <字段类型列表>;   │ 手动添加表信息（例: add 12345 t1 varchar,...）[!] 需将数据文件放入restore/datafile
+  restore db <库名> <路径>;               │ 初始化自定义数据库目录（例: restore db xmandb /home/...）
   ----------------------------------------.--------------------------------
 
-  **Parameters**
-  p|param startwal/endwal <WAL>;          │ Set WAL scan range (default archive boundaries)
-  p|param starttime/endtime <TIME>;       │ Set time scan range (e.g. 2025-01-01 00:00:00)
-  p|param resmode tx|time;                │ Set recovery mode (Transaction/Time)
-  p|param restype delete|update;          │ Set recovery type (Delete/Update)
-  p|param exmode csv|sql;                 │ Set export format (default CSV)
-  p|param encoding utf8|gbk;              │ Set character encoding (default utf8)
-  reset <param>|all;                      │ Reset specified parameter|all parameter
-  show;                                   │ Display all parameters
+  **Drop Table恢复**
+  dropscan/ds;                            │ 针对文件restore/tab.config中配置的表进行碎片扫描恢复
+  dropscan/ds repair;                     │ 针对此前扫描失败的TOAST表进行恢复
+  dropscan/ds clean;                      │ 删除restore/dropscan下的所有目录
+  dropscan/ds copy;                       │ 生成restore/dropscan下的所有表文件的COPY命令
+  ----------------------------------------.--------------------------------
+
+  **参数设置**
+  p|param startwal/endwal <WAL文件>;      │ 设置WAL扫描范围（默认归档目录首尾）
+  p|param starttime/endtime <时间>;       │ 设置时间扫描范围（例: 2025-01-01 00:00:00）
+  p|param resmode tx|time;                │ 设置恢复模式（事务号/时间区间）
+  p|param restype delete|update;          │ 设置恢复类型（删除/更新）
+  p|param exmode csv|sql;                 │ 设置导出格式（默认CSV）
+  p|param encoding utf8|gbk;              │ 设置字符编码（默认utf8）
+  reset <参数名>|all;                     │ 重置指定参数|所有参数
+  show;                                   │ 查看所有参数状态
+  t;                                      │ 查看当前支持的数据类型
 └──────────────────────────────────────────────────────────────────────────────────────────────────┘
 
-Syntax Rules
-◈ All commands must end with `;`
-
+语法规则
+◈ 所有指令必须以`;`结尾
 ```
 
 ## 快速部署
