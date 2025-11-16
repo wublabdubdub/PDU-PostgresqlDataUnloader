@@ -2,6 +2,11 @@
 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-10--17-336791?logo=postgresql) ![Version](https://img.shields.io/badge/Version-2.5-success?style=flat&color=2ea44f) ![License](https://img.shields.io/badge/License-Apache-green?logo=open-source-initiative)
 
+## 作者介绍
+**张晨（ZhangChen）**，具有丰富的Postgresql数据库恢复经验，主导过能源行业TB数据量级别的Postgresql数据文件抽取恢复工作。  
+最新的PDU下载软件与动态可关注唯一官方微信公众号ZhangChen-PDU
+![alt text](PDU二维码.jpg)
+
 ## 项目介绍
 假设一下Postgresql数据库中的这些场景
 1. 数据库一致性完全损坏无法打开
