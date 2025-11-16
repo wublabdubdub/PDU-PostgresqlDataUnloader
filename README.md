@@ -5,7 +5,7 @@
 ## 作者介绍
 **张晨（ZhangChen）**，具有丰富的Postgresql数据库恢复经验，主导过能源行业TB数据量级别的Postgresql数据文件抽取恢复工作。  
 最新的PDU下载软件与动态可关注唯一官方微信公众号ZhangChen-PDU
-![alt text](PDU二维码.jpg)
+<img src="PDU二维码.jpg" alt="alt text" style="display: block; margin: 0 auto; width: 200px;">
 
 ## 项目介绍
 假设一下Postgresql数据库中的这些场景
