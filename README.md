@@ -4,18 +4,19 @@
 
 ## Author Introduction
 **Zhang Chen(张晨)**, with extensive experience in PostgreSQL database recovery, has led several PostgreSQL data file extraction and recovery works at the terabyte level in the energy industry.  
-The latest PDU software downloads and feature updates can be obtained through the **official WeChat public account `ZhangChen-PDU`**. And it will also be uploaded in this repository.
+The latest PDU software downloads and feature updates can be obtained through the **official WeChat public account `ZhangChen-PDU`**.  
+And it will also be uploaded in this repository.
 
 <img src="PDU二维码.jpg" alt="alt text" style="display: block; margin: 0 auto; width: 200px;">
 
 **Specific usage scenarios for the PDU tool can also be found in the project's `wiki`, which is continuously updated.**
 
 ## Project Introduction
-Consider these scenarios in a PostgreSQL database:
-**1. The database integrity is completely corrupted and cannot be opened.
+Consider these scenarios in a PostgreSQL database:  
+1. The database integrity is completely corrupted and cannot be opened.
 2. Data is accidentally deleted/updated.
 3. Data files are accidentally deleted.
-4. Tables are accidentally dropped without any backups.**
+4. Tables are accidentally dropped without any backups.
 
 - Some of these scenarios might still have a chance cause we have tools like: *pg_filedump, pg_dirtyread, pg_resetlogs, pg_waldump*; the other scenario like drop table without backup is seen as no hope.
 - However, each of the tools above has its own unique usage methods, which undoubtedly **increases the learning curve for users** and also **adds trial-and-error costs during data recovery** without guaranteeing effectiveness for the above scenarios.
@@ -24,7 +25,9 @@ Data rescue in extreme scenarios is a crucial part of any database's ecosystem. 
 - Oracle can use odu/dul to directly mine data from data files or ASM disks.
 - PostgreSQL also has the pg_filedump tool in its ecosystem, which can **mine single table provided the table structure is known**. However, for cases of complete database corruption, **how to effectively obtain the entire database's data dictionary and achieve orderly and convenient data export** is a **significant challenge** facing the PG ecosystem.
 
-This project, **PDU (PostgreSQL Data Unloader)**, is a tool that integrates data file mining and recovery of accidentally deleted/updated data. Its characteristics are **low learning cost and high recovery efficiency**.
+This project, **PDU (PostgreSQL Data Unloader)**, is a tool that integrates data file mining and recovery of accidentally deleted/updated/dropped data. Its characteristics are **lower learning cost and higher recovery efficiency**.  
+  
+  **ALL KINDS OF POSTGRESQL DATA RECOVERY JOB, IN ONE TOOL.**
 
 The PDU tool's file structure is simple, consisting of only two parts: the ***pdu executable file and the pdu.ini configuration file***. The overall design philosophy is to lower the learning cost for users.
 
@@ -64,7 +67,7 @@ Range Types | `int4range`, `int8range`, `numrange`, `tsrange`, `tstzrange`, `dat
 ![EL-7/8/9](https://img.shields.io/badge/EL-7/8/9-red?style=flat&logo=redhat&logoColor=red) ![LINUX ARM64](https://img.shields.io/badge/LINUX-ARM-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624) ![LINUX X86](https://img.shields.io/badge/LINUX-X86-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624)
 ### 1. Environment Preparation
 - Upload the installation package to the database server that needs recovery.
-- Choose the corresponding installation package based on the server architecture, both arm and x86 are supported but only x86 is provided.
+- Choose the corresponding installation package based on the server architecture, both arm and x86 are supported but only x86 is provided for now.
 
 ```bash
 PDU3.0.25.12_for_Postgresql10-18_Community_Edition_20251203_x86.zip
@@ -139,23 +142,45 @@ Afterwards, you can use common PostgreSQL commands like `\l`, `\dt`, `\dn`, `\d+
 PDU.public=# b;
 
 Initializing...
- -pg_database:</home/10pg/data/global/1262>
+ -pg_database:</home/18pg/data/global/1262>
 
-Database:postgres
-      -pg_schema:</home/10pg/data/base/13214/2615>
-      -pg_class:</home/10pg/data/base/13214/1259> 69 Records
-      -pg_attribute:</home/10pg/data/base/13214/1249> 2579 Records
+Database:postgres 
+      -pg_schema:</home/18pg/data/base/5/2615>
+      -pg_class:</home/18pg/data/base/5/1259> 84 Records
+      -pg_attribute:</home/18pg/data/base/5/1249> 3169 Records
       Schema:
-        ▌ public 0 tables
+        ▌ public 1 tables
 
-Database:xman
-      -pg_schema:</home/10pg/tbsxman/PG_10_201707211/213244/2615>
-      -pg_class:</home/10pg/tbsxman/PG_10_201707211/213244/1259> 493 Records
-      -pg_attribute:</home/10pg/tbsxman/PG_10_201707211/213244/1249> 8697 Records
+Database:alldb 
+      -pg_schema:</home/18pg/data/base/161441/2615>
+      -pg_class:</home/18pg/data/base/161441/1259> 11216 Records
+      -pg_attribute:</home/18pg/data/base/161441/1249> 189709 Records
       Schema:
-        ▌ public 0 tables
-        ▌ xman 212 tables
-
+        ▌ public 1071 tables
+        ▌ bbp 193 tables
+        ▌ clothes_space 66 tables
+        ▌ demo 10 tables
+        ▌ ding 10 tables
+        ▌ ecm 83 tables
+        ▌ emr 221 tables
+        ▌ group_access_control 0 tables
+        ▌ hihis 1709 tables
+        ▌ keycloak 90 tables
+        ▌ msax 24 tables
+        ▌ msax_ac 25 tables
+        ▌ msax_app 6 tables
+        ▌ msax_bi 16 tables
+        ▌ msax_codegen 3 tables
+        ▌ msax_config 12 tables
+        ▌ msax_demo 1 tables
+        ▌ msax_job 21 tables
+        ▌ msax_mp 6 tables
+        ▌ msax_pay 6 tables
+        ▌ msax_report 17 tables
+        ▌ nsdzda 211 tables
+        ▌ srm 1865 tables
+        ▌ textile_page 14 tables
+PDU.public=# 
 ```
 ### 4. Usage Help
 ```bash
