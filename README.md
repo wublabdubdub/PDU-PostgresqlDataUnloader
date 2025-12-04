@@ -1,10 +1,10 @@
 # PostgreSQL Disaster Recovery Tool PDU
 
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-10--17-336791?logo=postgresql) ![Version](https://img.shields.io/badge/Version-2.5-success?style=flat&color=2ea44f) ![License](https://img.shields.io/badge/License-Apache-green?logo=open-source-initiative)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-10--18-336791?logo=postgresql) ![Version](https://img.shields.io/badge/Version-3.0-success?style=flat&color=2ea44f) ![License](https://img.shields.io/badge/License-Apache-green?logo=open-source-initiative)
 
 ## Author Introduction
-**Zhang Chen (ZhangChen)**, with extensive experience in PostgreSQL database recovery, has led PostgreSQL data file extraction and recovery work at the terabyte level in the energy industry.  
-The latest PDU software downloads and feature updates can be obtained through the **official WeChat public account `ZhangChen-PDU`**.
+**Zhang Chen(张晨)**, with extensive experience in PostgreSQL database recovery, has led several PostgreSQL data file extraction and recovery works at the terabyte level in the energy industry.  
+The latest PDU software downloads and feature updates can be obtained through the **official WeChat public account `ZhangChen-PDU`**. And it will also be uploaded in this repository.
 
 <img src="PDU二维码.jpg" alt="alt text" style="display: block; margin: 0 auto; width: 200px;">
 
@@ -12,26 +12,29 @@ The latest PDU software downloads and feature updates can be obtained through th
 
 ## Project Introduction
 Consider these scenarios in a PostgreSQL database:
-1. The database integrity is completely corrupted and cannot be opened.
-2. Data is accidentally deleted.
+**1. The database integrity is completely corrupted and cannot be opened.
+2. Data is accidentally deleted/updated.
 3. Data files are accidentally deleted.
+4. Tables are accidentally dropped without any backups.**
 
-There might be many solutions: pg_filedump, pg_dirtyread, pg_resetlogs, pg_waldump. However, each of these tools has its own unique usage methods, which undoubtedly **increases the learning curve for users** and also **adds trial-and-error costs during data recovery** without guaranteeing effectiveness for the above three scenarios.
+- Some of these scenarios might still have a chance cause we have tools like: *pg_filedump, pg_dirtyread, pg_resetlogs, pg_waldump*; the other scenario like drop table without backup is seen as no hope.
+- However, each of the tools above has its own unique usage methods, which undoubtedly **increases the learning curve for users** and also **adds trial-and-error costs during data recovery** without guaranteeing effectiveness for the above scenarios.
 
 Data rescue in extreme scenarios is a crucial part of any database's ecosystem. In such scenarios,
 - Oracle can use odu/dul to directly mine data from data files or ASM disks.
-- PostgreSQL also has the pg_filedump tool in its ecosystem, which can mine single tables **provided the table structure is known**. However, for cases of complete database corruption, **how to effectively obtain the entire database's data dictionary and achieve orderly and convenient data export** is a **significant challenge** facing the PG ecosystem.
+- PostgreSQL also has the pg_filedump tool in its ecosystem, which can **mine single table provided the table structure is known**. However, for cases of complete database corruption, **how to effectively obtain the entire database's data dictionary and achieve orderly and convenient data export** is a **significant challenge** facing the PG ecosystem.
 
 This project, **PDU (PostgreSQL Data Unloader)**, is a tool that integrates data file mining and recovery of accidentally deleted/updated data. Its characteristics are **low learning cost and high recovery efficiency**.
 
-The PDU tool's file structure is simple, consisting of only two parts: the ***pdu executable file and the PGDATA.ini configuration file***. The overall design philosophy is to lower the learning cost for users.
+The PDU tool's file structure is simple, consisting of only two parts: the ***pdu executable file and the pdu.ini configuration file***. The overall design philosophy is to lower the learning cost for users.
 
 ## Core Features
-**PostgreSQL Data Unloader (PDU)** is a disaster recovery tool for PostgreSQL versions 10-17, with main features:
-1. Recover original data from DELETE/UPDATE operations in archived WALs.
-2. Extract data directly from data files when the database cannot be started.
-3. Support recovery at the level of single tables/entire databases/custom data files.
-4. Data recovery via fragment scanning for dropped table/truncated table operations.
+**PostgreSQL Data Unloader (PDU)** is a disaster recovery tool for PostgreSQL versions 10-18, with main features:
+1. Recover original data from **DELETE/UPDATE operations** in archived WALs.
+2. **Extract data directly from data files** when the database cannot be started.
+3. the ONLY evealed feasible method to **restore dropped table without backups**.
+4. Support recovery at the level of single tables/entire databases/custom data files.
+5. Data recovery via fragment scanning for dropped table/truncated table operations.
 
 ## Data Types Supported by PDU
 
@@ -50,8 +53,8 @@ JSON | `json`, `jsonb` |  :white_check_mark:
 Arrays | Arrays of all basic types (e.g., `integer[]`) |  :white_check_mark:
 Network Address | `cidr`, `inet`, `macaddr` |  :white_check_mark:
 Bit String Types | `bit(n)`, `bit varying(n)` | :white_check_mark:
-Enumeration Types | User-defined enumeration types | :x:
 PostGIS Geometric Types | `point`, `line`, `lseg`, `box`, `path`, `polygon`, `circle` | :white_check_mark:
+Enumeration Types | User-defined enumeration types | :x:
 Text Search | `tsvector`, `tsquery` | :x:
 Composite Types | User-defined types | :x:
 Range Types | `int4range`, `int8range`, `numrange`, `tsrange`, `tstzrange`, `daterange` | :x:
@@ -61,7 +64,7 @@ Range Types | `int4range`, `int8range`, `numrange`, `tsrange`, `tstzrange`, `dat
 ![EL-7/8/9](https://img.shields.io/badge/EL-7/8/9-red?style=flat&logo=redhat&logoColor=red) ![LINUX ARM64](https://img.shields.io/badge/LINUX-ARM-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624) ![LINUX X86](https://img.shields.io/badge/LINUX-X86-%23FCC624?style=flat&logo=linux&logoColor=black&labelColor=FCC624)
 ### 1. Environment Preparation
 - Upload the installation package to the database server that needs recovery.
-- Choose the corresponding installation package based on the server architecture.
+- Choose the corresponding installation package based on the server architecture, both arm and x86 are supported but only x86 is provided.
 
 ```bash
 PDU3.0.25.12_for_Postgresql10-18_Community_Edition_20251203_x86.zip
@@ -70,8 +73,8 @@ PDU3.0.25.12_for_Postgresql10-18_Community_Edition_20251203_x86.zip
 #### 1.1 Extract the Installation Package
 
 ```bash
-mkdir pdu
-cd pdu && unzip ../PDU3.0.25.12_for_Postgresql10-18_Community_Edition_20251203_x86.zip
+[root@node1 ~]# mkdir pdu
+[root@node1 ~]# cd pdu && unzip ../PDU3.0.25.12_for_Postgresql10-18_Community_Edition_20251203_x86.zip
 Archive:  PDU3.0.25.12_for_Postgresql10-18_Community_Edition_20251203_x86.zip
  extracting: pdu10
  extracting: pdu11
@@ -130,7 +133,8 @@ PDU.public=#
 ```
 
 ### 3. Bootstrap First
-Use the command `<b;>` to quickly bootstrap. Afterwards, you can use common PostgreSQL commands like `\l`, `\dt`, `\dn`, `\d+`, `\d` to view the current databases, tables, schemas, table structures, etc.
+Use the command `<b;>` to quickly bootstrap.  
+Afterwards, you can use common PostgreSQL commands like `\l`, `\dt`, `\dn`, `\d+`, `\d` to view the current databases, tables, schemas, table structures, etc.
 ```bash
 PDU.public=# b;
 
@@ -212,7 +216,7 @@ Syntax Rules
 ◈ All commands must end with `;`
 ```
 
-## Instructions for Different Data Recover Scenario 
+## Instructions for Different Data Recover Scenarios 
 PDU supports full Scenarios of Postgresql data recovery which can not be concluded in the ReadMe,so I've compiled **a series of documents in this repository wiki**, which you can refer to.
 
 ## Contact Me
