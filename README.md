@@ -13,10 +13,10 @@ And it will also be uploaded in this repository.
 
 ## Project Introduction
 Consider these scenarios in a PostgreSQL database:  
-1. The database integrity is completely corrupted and cannot be opened.
-2. Data is accidentally deleted/updated.
-3. Data files are accidentally deleted.
-4. Tables are accidentally dropped without any backups.
+1. **The database integrity is completely corrupted and cannot be opened.**
+2. **Data is accidentally deleted/updated.**
+3. **Data files are accidentally deleted.**
+4. **Tables are accidentally dropped without any backups.**
 
 - Some of these scenarios might still have a chance cause we have tools like: *pg_filedump, pg_dirtyread, pg_resetlogs, pg_waldump*; the other scenario like drop table without backup is seen as no hope.
 - However, each of the tools above has its own unique usage methods, which undoubtedly **increases the learning curve for users** and also **adds trial-and-error costs during data recovery** without guaranteeing effectiveness for the above scenarios.
@@ -27,7 +27,7 @@ Data rescue in extreme scenarios is a crucial part of any database's ecosystem. 
 
 This project, **PDU (PostgreSQL Data Unloader)**, is a tool that integrates data file mining and recovery of accidentally deleted/updated/dropped data. Its characteristics are **lower learning cost and higher recovery efficiency**.  
   
-  **ALL KINDS OF POSTGRESQL DATA RECOVERY JOB, IN ONE TOOL.**
+  **ALL KINDS OF POSTGRESQL DATA RECOVERY JOB, SOLVED IN ONE TOOL.**
 
 The PDU tool's file structure is simple, consisting of only two parts: the ***pdu executable file and the pdu.ini configuration file***. The overall design philosophy is to lower the learning cost for users.
 
@@ -135,7 +135,7 @@ ARCHIVE_DEST=/home/postgres/wal_arch
 PDU.public=#
 ```
 
-### 3. Bootstrap First
+### 3. Initialize First
 Use the command `<b;>` to quickly bootstrap.  
 Afterwards, you can use common PostgreSQL commands like `\l`, `\dt`, `\dn`, `\d+`, `\d` to view the current databases, tables, schemas, table structures, etc.
 ```bash
@@ -244,10 +244,20 @@ Syntax Rules
 ## Instructions for Different Data Recover Scenarios 
 PDU supports full Scenarios of Postgresql data recovery which can not be concluded in the ReadMe,so I've compiled **a series of documents in this repository wiki**, which you can refer to.
 
+## Difference Between Community Edition and Profession Edition
+- Community Edition is free to use for all, but Professional Edition is only available by contacting me and not free, according to the recovery difficulty and data volume.
+
+Funtion | Community Edition | Professional Edition |
+---- | ---- | ---- |
+Number of Records Restored from delete/update | No More Than 100000 per table | Unlimited 
+Number of Records Extracted from Datafile| No More Than 100000 per table | Unlimited 
+Number of Columns Per Table | No More Than 50 | Unlimited 
+Number of Tables Per Schema | No More Than 500 | Unlimited 
+Speed of TOAST parsing | N | N/100 
+
 ## Contact Me
 For any questions regarding the use of PDU software or if the program encounters bugs/core dumps, you are welcome to contact me directly for assistance.
 ```bash
   • WeChat: x1987LJ2020929
   • Email:  1109315180@qq.com
-  • Tel:    15251853831
 ```
